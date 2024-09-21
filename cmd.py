@@ -106,22 +106,22 @@ def process_cmd(arg):
     cmd_lst = arg.split()
     cmd = cmd_lst[0].lower()
     if cmd == 'quit':       # handle exit request
-        handle_quit()
+        quit_handler()
     elif cmd == 'cd':       # handle directory changes
         cd_handler(cmd_lst)
     else:
-        handle_cmd(arg)     # handle regular commands
+        cmd_handler(arg)     # handle regular commands
 
 
 # exit check
-def handle_quit():
+def quit_handler():
     global quit_cmd
     if quit_handler():
         quit_cmd = True
 
 
 # process cmd based on type
-def handle_cmd(arg):
+def cmd_handler(arg):
     filename, mode, flags, arg = parse_redirection(arg)
     cmd_lst = get_cmd_lst(arg)
     if cmd_lst:             # if arguments require redirection of i/o
