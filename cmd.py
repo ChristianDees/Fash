@@ -106,7 +106,7 @@ def process_cmd(arg):
     cmd_lst = arg.split()
     cmd = cmd_lst[0].lower()
     if cmd == 'quit':       # handle exit request
-        quit_handler()
+        handle_quit()
     elif cmd == 'cd':       # handle directory changes
         cd_handler(cmd_lst)
     else:
@@ -114,7 +114,7 @@ def process_cmd(arg):
 
 
 # exit check
-def quit_handler():
+def handle_quit():
     global quit_cmd
     if quit_handler():
         quit_cmd = True
