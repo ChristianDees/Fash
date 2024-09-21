@@ -1,6 +1,7 @@
 import os
 import sys
 import redirect
+import re
 from colorama import Fore, Style,init
 
 init(autoreset=True)
@@ -48,7 +49,7 @@ def cd_handler(cmd_lst):
     
 
 # return command path if exists
-def find_path(cmd):
+def get_path(cmd):
     paths = os.environ.get("PATH").split(":")
     for path in paths:
         path += '/' + cmd
@@ -69,9 +70,11 @@ def get_cmd_lst(arg):
     if not cmd_lst:
         return None
     cmd = cmd_lst[0].lower()
-    path = find_path(cmd)
+    path = get_path(cmd)
     if path:
-        return [path] + [cmd.replace('"', '') for cmd in cmd_lst[1:]]
+        rest = [p for p in re.split("( |\\\".*?\\\"|'.*?')", ' '.join(cmd_lst[1:])) if p.strip()]
+        rest = [i.replace('"','') for i in rest]
+        return [path] + rest
     print(f"fash: {cmd}: command not found")
     return None
 
