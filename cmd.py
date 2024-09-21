@@ -6,7 +6,6 @@ from colorama import Fore, Style,init
 init(autoreset=True)
 
 ps1 = None
-background_pids=[]
 quit_cmd = False
 
 # update ps1 to cwd & color
@@ -28,19 +27,9 @@ ps1_update()
 # handle if exit request
 def quit_handler():
     global quit_cmd
-    if background_pids:                 # background process need cleaning
-        print("There are background processes running.")
-        inp = input("Are you sure you want to exit when there are processes running in the background? (y/n) ").strip()
-        if inp == "n":
-            quit_cmd = True
-            return False
-        elif inp == "y":                # wait for bg processes to finish
-            for pid in background_pids:
-                process_wait(pid)
-    else:
-        quit_cmd = True
+    quit_cmd = True
     print("Exiting...")
-    return True
+    return
     
 
 # handle directory changes
@@ -108,18 +97,11 @@ def process_cmd(arg):
     cmd_lst = arg.split()
     cmd = cmd_lst[0].lower()
     if cmd == 'quit':       # handle exit request
-        handle_quit()
+        quit_handler()
     elif cmd == 'cd':       # handle directory changes
         cd_handler(cmd_lst)
     else:
         handler(arg)     # handle regular commands
-
-
-# exit check
-def handle_quit():
-    global quit_cmd
-    if quit_handler():
-        quit_cmd = True
 
 
 # process cmd based on type
@@ -158,10 +140,10 @@ def manage_process(cmd_lst, arg):
     pType = "bg" if arg.endswith('&') else "fg"
     pid = run_process(cmd_lst)
     if pid:
-        if pType == "bg":
-            background_pids.append(pid)
-        elif pType == "fg":
+        if pType == "fg":
             process_wait(pid)
+        elif pType == "fg":
+            pass
 
 
 # waits for a process to finish executing
