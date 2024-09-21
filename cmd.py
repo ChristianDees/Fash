@@ -74,6 +74,8 @@ def find_path(cmd):
 
 # return [binary executable path, arguments+]
 def get_cmd_lst(arg):
+    if arg.startswith('./'): # starts with executable
+        return [arg] +['']
     cmd_lst = arg.split()
     if not cmd_lst:
         return None
@@ -93,7 +95,7 @@ def run_process(cmd):
             try:
                 os.execv(cmd[0], cmd)   # replace child process w/ command and its args
             except FileNotFoundError:
-                print(f"Command not found: {command[0]}")
+                print(f"Command not found: {cmd[0]}")
                 sys.exit(1)
         return cpid                     # parent process
     except Exception as e:
@@ -110,7 +112,7 @@ def process_cmd(arg):
     elif cmd == 'cd':       # handle directory changes
         cd_handler(cmd_lst)
     else:
-        cmd_handler(arg)     # handle regular commands
+        handler(arg)     # handle regular commands
 
 
 # exit check
@@ -121,7 +123,7 @@ def handle_quit():
 
 
 # process cmd based on type
-def cmd_handler(arg):
+def handler(arg):
     filename, mode, flags, arg = parse_redirection(arg)
     cmd_lst = get_cmd_lst(arg)
     if cmd_lst:             # if arguments require redirection of i/o
@@ -155,10 +157,11 @@ def parse_redirection(arg):
 def manage_process(cmd_lst, arg):
     pType = "bg" if arg.endswith('&') else "fg"
     pid = run_process(cmd_lst)
-    if pType == "bg":
-        background_pids.append(pid)
-    elif pType == "fg":
-        process_wait(pid)
+    if pid:
+        if pType == "bg":
+            background_pids.append(pid)
+        elif pType == "fg":
+            process_wait(pid)
 
 
 # waits for a process to finish executing
@@ -168,31 +171,3 @@ def process_wait(pid):
         print(f"Program terminated: exit code {status}.")
         sys.exit(1)
 
-
-
-def handler(prev_cmd, curr_cmd):
-    prev_cmd_list = cmd.get_cmd_lst(prev_cmd)
-    curr_cmd_list = cmd.get_cmd_lst(curr_cmd)
-    try:
-        r, w = os.pipe()
-        cpid1 = os.fork()
-        if cpid1 == 0:
-            # Child process for the first command
-            os.dup2(w, 1)  # Redirect stdout to write end of pipe
-            os.close(r)
-            os.close(w)
-            os.execvp(prev_cmd_list[0], prev_cmd_list)  # Use execvp to find the command
-        else:
-            os.close(w)  # Parent closes the write end
-            cpid2 = os.fork()
-            if cpid2 == 0:
-                # Child process for the second command
-                os.dup2(r, 0)  # Redirect stdin to read end of pipe
-                os.close(r)
-                os.execvp(curr_cmd_list[0], curr_cmd_list)  # Use execvp to find the command
-            else:
-                os.close(r)  # Parent closes the read end
-                os.waitpid(cpid1, 0)  # Wait for the first child
-                os.waitpid(cpid2, 0)  # Wait for the second child
-    except Exception as e:
-        print(f"Error executing commands: {prev_cmd} | {curr_cmd}, Error: {e}")
