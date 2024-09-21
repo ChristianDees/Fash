@@ -42,12 +42,12 @@ def handler(prev_cmd, curr_cmd):
         pid2, stat2 = os.waitpid(cpid2, 0)
 
         # check exit status
-        if os.WIFEXITED(stat1) and os.WIFEXITED(stat2):
-            return None  # Both processes exited normally
-        return (os.WEXITSTATUS(stat1) if os.WIFEXITED(stat1) else None,
-                os.WEXITSTATUS(stat2) if os.WIFEXITED(stat2) else None)
+        if os.WIFEXITED(stat1) and os.WEXITSTATUS(stat1) != 0:
+            return os.WEXITSTATUS(stat1)
+        if os.WIFEXITED(stat2) and os.WEXITSTATUS(stat2) != 0:
+            return os.WEXITSTATUS(stat2)
 
     except Exception as e:
         print(f"Error: {e}")
-        return None  # Return None on error
+        return -1
 
