@@ -64,19 +64,34 @@ def get_path(cmd):
 
 # return [binary executable path, arguments+]
 def get_cmd_lst(arg):
-    if arg.startswith('./'): # starts with executable
-        return [arg] +['']
+    if arg.startswith('./'):  # starts with executable
+        return [arg] + ['']
+    
     cmd_lst = arg.split()
     if not cmd_lst:
         return None
+    
     cmd = cmd_lst[0].lower()
     path = get_path(cmd)
+    
     if path:
-        rest = [p for p in re.split("( |\\\".*?\\\"|'.*?')", ' '.join(cmd_lst[1:])) if p.strip()]
-        rest = [i.replace('"','') for i in rest]
+        # split cmd str respecting quoted sections
+        split_pattern = r'''(?:
+            (?P<quote>["'])(?P<quoted_text>.*?)(?P=quote) |  # match txt within quotes
+            (?P<unquoted_text>[^"'\s]+)  # match unquoted txt
+        )'''
+        matches = re.finditer(split_pattern, ' '.join(cmd_lst[1:]), re.VERBOSE)
+        rest = []
+        for match in matches:
+            if match.group('quoted_text'):
+                rest.append(match.group('quoted_text'))
+            elif match.group('unquoted_text'):
+                rest.append(match.group('unquoted_text'))
         return [path] + rest
     print(f"fash: {cmd}: command not found")
     return None
+
+
 
 
 # create and execute a process

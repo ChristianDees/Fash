@@ -19,5 +19,5 @@ def get_args(inp):
     # Remove comments
     inp = inp[:inp.index('#')] if '#' in inp else inp
     # Split by semicolon not within quotes and clean up
-    args = [arg.strip().replace("'", '') for arg in re.split(r';(?=(?:[^\'"]*\'[^\'"]*\')*[^\'"]*$)', inp) if arg.strip()]
+    args = [arg.strip() for arg in re.split(r';(?=(?:[^\'"]*\'[^\'"]*\')*[^\'"]*$)', inp) if arg.strip()]
     return args
