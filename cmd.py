@@ -127,18 +127,13 @@ def handler(arg):
     original_stdout = None
     cmd_lst, input_file, output_file = redirect.handle_redirection(arg)
     if cmd_lst:
-        manage_process(cmd_lst, arg, input_file, output_file)
-
-
-# decides if process is background or foreground
-def manage_process(cmd_lst, arg, input_file, output_file):
-    pType = "bg" if arg.endswith('&') else "fg"
-    pid = run_process(cmd_lst, input_file, output_file)
-    if pid:
-        if pType == "fg":
-            process_wait(pid)
-        elif pType == "bg":
-            pass
+        pType = "bg" if arg.endswith('&') else "fg"
+        pid = run_process(cmd_lst, input_file, output_file)
+        if pid:
+            if pType == "fg":
+                process_wait(pid)
+            elif pType == "bg":
+                pass
 
 
 # waits for a process to finish executing

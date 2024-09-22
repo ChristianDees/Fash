@@ -10,7 +10,7 @@ def handler(inp):
     args = get_args(inp)
     for arg in args:
         if '|' in arg:   # pipe check
-            pipe.parse(arg)
+            pipe.handler(arg)
         else:            # process non-piped commands
             cmd.process_cmd(arg)
 
@@ -23,5 +23,5 @@ def get_args(inp):
         cmnt_start = matches[0].start()
         inp = inp[:cmnt_start]
     # split by semicolon not within quotes and clean up
-    args = [arg.strip() for arg in re.split(r';(?=(?:[^\'"]*\'[^\'"]*\')*[^\'"]*$)', inp) if arg.strip()]
+    args = [arg.strip() for arg in re.split(r'(?<!["\']);(?![^"\']*["\'])', inp) if arg.strip()]
     return args

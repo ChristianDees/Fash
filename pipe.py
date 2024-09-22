@@ -2,7 +2,7 @@ import os
 import re
 import redirect
 
-def parse(arg):
+def handler(arg):
     cmds = arg.split('|')
         
     # get pipes for each command (exclude last)

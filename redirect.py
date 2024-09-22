@@ -3,26 +3,26 @@ import cmd
 
 
 # generate redirection parameters
-def handle_redirection(command):
+def handle_redirection(cmd):
     input_file = None
     output_file = None
     # input redirection
-    if '<' in command:
-        parts = command.split('<')
-        command = parts[0].strip()
-        if not command:
-            command = parts[-1].split()[-1]
+    if '<' in cmd:
+        parts = cmd.split('<')
+        cmd = parts[0].strip()
+        if not cmd:
+            cmd = parts[-1].split()[-1]
         input_file = ''.join(parts[1]).split()[0].strip()
         
     # output redirection
-    if '>' in command:
-        parts = command.split('>')
-        command = parts[0].strip()
-        if not command:
-            command = parts[-1].split()[-1]
+    if '>' in v:
+        parts = cmd.split('>')
+        cmd = parts[0].strip()
+        if not cmd:
+            cmd = parts[-1].split()[-1]
         output_file = ''.join(parts[1]).split()[0].strip()
-    command_lst = cmd.get_cmd_lst(command)
-    return command_lst, input_file, output_file
+    cmd_lst = cmd.get_cmd_lst(cmd)
+    return cmd_lst, input_file, output_file
 
 
 # set file descriptors to redirect io
