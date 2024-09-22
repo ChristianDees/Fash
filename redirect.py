@@ -3,25 +3,26 @@ import cmd
 
 
 # generate redirection parameters
-def handle_redirection(cmd):
+def handle_redirection(inp_cmd):
     input_file = None
     output_file = None
+    command = inp_cmd
     # input redirection
-    if '<' in cmd:
-        parts = cmd.split('<')
-        cmd = parts[0].strip()
-        if not cmd:
-            cmd = parts[-1].split()[-1]
+    if '<' in inp_cmd:
+        parts = inp_cmd.split('<')
+        command = parts[0].strip()
+        if not command:
+            command = parts[-1].split()[-1]
         input_file = ''.join(parts[1]).split()[0].strip()
         
     # output redirection
-    if '>' in v:
-        parts = cmd.split('>')
-        cmd = parts[0].strip()
-        if not cmd:
-            cmd = parts[-1].split()[-1]
+    if '>' in inp_cmd:
+        parts = inp_cmd.split('>')
+        command = parts[0].strip()
+        if not command:
+            command = parts[-1].split()[-1]
         output_file = ''.join(parts[1]).split()[0].strip()
-    cmd_lst = cmd.get_cmd_lst(cmd)
+    cmd_lst = cmd.get_cmd_lst(command)
     return cmd_lst, input_file, output_file
 
 
