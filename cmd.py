@@ -57,6 +57,10 @@ def get_path(cmd):
             return path
         except FileNotFoundError:
             continue
+        except PermissionError as e:
+            print(f"PermissionError: {e}")
+            return None
+    print(f"fash: {cmd}: command not found")
     return None
 
 
@@ -86,7 +90,6 @@ def get_cmd_lst(arg):
             elif match.group('unquoted_text'):
                 rest.append(match.group('unquoted_text'))
         return [path] + rest
-    print(f"fash: {cmd}: command not found")
     return None
 
 
