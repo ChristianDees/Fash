@@ -18,7 +18,10 @@ def handler(inp):
 def get_args(inp):
     # remove comments, but not ones within quotes
     pattern = r'(?<!["\'])#(?![^"\']*["\'])'
-    inp = re.sub(pattern, '', inp)
+    matches = list(re.finditer(pattern, inp))
+    if matches:
+        cmnt_start = matches[0].start()
+        inp = inp[:cmnt_start]
     # split by semicolon not within quotes and clean up
     args = [arg.strip() for arg in re.split(r';(?=(?:[^\'"]*\'[^\'"]*\')*[^\'"]*$)', inp) if arg.strip()]
     return args
