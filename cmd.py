@@ -19,6 +19,12 @@ def ps1_update():
         display_dir = '~'
     else:
         display_dir = current_dir.replace(home_dir, '')
+    '''
+    # REQUIRED FOR ASSIGNMENT BUT NOT IMPLIMENTED:
+    # NOT IMPLIMENTED BECAUSE I WANT TO SETUP PS1 TO LOOK GOOD
+    # JUST UNCOMMENT TO IMPLIMENT AND COMMENT OUT OTHER PS1 ASSIGNMENT
+    ps1 = f"{current_dir}\n{os.environ.get('PS1')}"
+    '''
     ps1 = Fore.GREEN + f"[{user}]" + Fore.BLUE + f"[{display_dir}]" + Style.RESET_ALL + '\n$ '
 
 # set up ps1
