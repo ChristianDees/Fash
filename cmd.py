@@ -24,13 +24,6 @@ def ps1_update():
 
 # set up ps1
 ps1_update()
-
-# handle if exit request
-def quit_handler():
-    global quit_cmd
-    quit_cmd = True
-    print("Exiting...")
-    return
     
 
 # handle directory changes
@@ -95,11 +88,13 @@ def get_cmd_lst(arg):
 
 
 # create and execute a process
-def run_process(cmd):
+def run_process(cmd, input_file=None, output_file=None):
     try:
         cpid = os.fork()
         if cpid == 0:                   # child process
             try:
+                if input_file or output_file:
+                    redirect.redirect_io(input_file, output_file)
                 os.execv(cmd[0], cmd)   # replace child process w/ command and its args
             except FileNotFoundError:
                 print(f"Command not found: {cmd[0]}")
@@ -115,7 +110,8 @@ def process_cmd(arg):
     cmd_lst = arg.split()
     cmd = cmd_lst[0].lower()
     if cmd == 'quit':       # handle exit request
-        quit_handler()
+        print("Exiting..")
+        quit_cmd = True
     elif cmd == 'cd':       # handle directory changes
         cd_handler(cmd_lst)
     else:
@@ -124,43 +120,21 @@ def process_cmd(arg):
 
 # process cmd based on type
 def handler(arg):
-    filename, mode, flags, arg = parse_redirection(arg)
-    cmd_lst = get_cmd_lst(arg)
-    if cmd_lst:             # if arguments require redirection of i/o
-        if filename:
-            redirect.handler(cmd_lst, filename, mode, flags)
-        else:               # regular arguments
-            manage_process(cmd_lst, arg)
-
-
-# return metadata required for redirection of i/o
-def parse_redirection(arg):
-    cidx = None
-    filename = None
-    flags = None
-    mode = None
-    if '<' in arg:              # setup input redirect
-        cidx = arg.index('<')
-        flags = os.O_RDONLY
-        mode = 'in'
-    elif '>' in arg:            # setup output redirect
-        cidx = arg.index('>')
-        flags = os.O_WRONLY | os.O_CREAT
-        mode = 'out'
-    if cidx is not None:        # obtain filename and args-filename
-        filename = arg[cidx + 2:].strip()
-        arg = arg[:cidx].strip()
-    return filename, mode, flags, arg
+    original_stdin = None
+    original_stdout = None
+    cmd_lst, input_file, output_file = redirect.handle_redirection(arg)
+    if cmd_lst:
+        manage_process(cmd_lst, arg, input_file, output_file)
 
 
 # decides if process is background or foreground
-def manage_process(cmd_lst, arg):
+def manage_process(cmd_lst, arg, input_file, output_file):
     pType = "bg" if arg.endswith('&') else "fg"
-    pid = run_process(cmd_lst)
+    pid = run_process(cmd_lst, input_file, output_file)
     if pid:
         if pType == "fg":
             process_wait(pid)
-        elif pType == "fg":
+        elif pType == "bg":
             pass
 
 

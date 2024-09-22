@@ -1,26 +1,44 @@
 import os
+import cmd
 
-# handle i/o redirection
-def handler(cmd, filename, mode, flags):
-    try:
-        pid = os.fork()
-        # child process
-        if pid == 0:
-            # get file descriptor
-            fd = os.open(filename, flags)
-            # duplicate fd to i/o of file
-            # 0 = std input, 1 std output
-            os.dup2(fd, 0 if mode == 'in' else 1)
-            os.close(fd)
-            os.execv(cmd[0], cmd)
-        elif pid > 0:
-            # parent process let child finish
-            pid, status = os.waitpid(pid, 0)
-            if os.WIFEXITED(status):
-                rc = os.WEXITSTATUS(status)
-                if rc != 0:
-                    # return exit code if failed
-                    return rc
-    except Exception as e:
-        print(f"Error: {e}")
-        return 1
+
+# generate redirection parameters
+def handle_redirection(command):
+    input_file = None
+    output_file = None
+    # input redirection
+    if '<' in command:
+        parts = command.split('<')
+        command = parts[0].strip()
+        if not command:
+            command = parts[-1].split()[-1]
+        input_file = ''.join(parts[1]).split()[0].strip()
+        
+    # output redirection
+    if '>' in command:
+        parts = command.split('>')
+        command = parts[0].strip()
+        if not command:
+            command = parts[-1].split()[-1]
+        output_file = ''.join(parts[1]).split()[0].strip()
+    command_lst = cmd.get_cmd_lst(command)
+    return command_lst, input_file, output_file
+
+
+# set file descriptors to redirect io
+def redirect_io(input_file, output_file):
+
+    # input redirection
+    if input_file:
+        infile = os.open(input_file, os.O_RDONLY)
+        os.dup2(infile, 0)  # redirect std input from input file
+        os.close(infile)
+
+    # output redirection
+    if output_file:
+        outfile = os.open(output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
+        os.dup2(outfile, 1)  # redirect std output to output file
+        os.close(outfile)
+    
+    
+

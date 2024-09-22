@@ -1,53 +1,48 @@
 import os
 import re
-import cmd
+import redirect
 
-
-# handle each argument involved in a pipe
 def parse(arg):
-    prev = re.split(r'\s*\|\s*', arg)
-    idx = 0
-    prev_cmd = None
-    while(prev):                # iterate through each command
-        if(idx!=0):
-            handler(prev_cmd, prev[0])
-        prev_cmd = prev.pop(0)  # get prev from head of list
-        idx+=1
+    cmds = arg.split('|')
         
+    # get pipes for each command (exclude last)
+    pipes = []
+    for i in range(len(cmds) - 1):
+        r, w = os.pipe()
+        pipes.append((r, w))
         
-import os
-
-def handler(prev_cmd, curr_cmd):
-    # get command lists
-    prev_cmd = cmd.get_cmd_lst(prev_cmd)
-    curr_cmd = cmd.get_cmd_lst(curr_cmd)
-    try:
-        r, w = os.pipe()    # open communication: read, write
-        cpid1 = os.fork()   # create first child process
-        if cpid1 == 0:
-            os.dup2(w, 1)   # redirect stdout to write end of pipe
-            os.close(r)
-            os.execv(prev_cmd[0], prev_cmd)
-        else:
-            os.close(w)  # close write end in parent
-            cpid2 = os.fork()  # create second child process
-            if cpid2 == 0:
-                os.dup2(r, 0)   # redirect stdin to read end of pipe
-                os.close(r)
-                os.execv(curr_cmd[0], curr_cmd)
-            else:
-                os.close(r)  # close read end in parent
-        # wait for children
-        pid1, stat1 = os.waitpid(cpid1, 0)
-        pid2, stat2 = os.waitpid(cpid2, 0)
-
-        # check exit status
-        if os.WIFEXITED(stat1) and os.WEXITSTATUS(stat1) != 0:
-            return os.WEXITSTATUS(stat1)
-        if os.WIFEXITED(stat2) and os.WEXITSTATUS(stat2) != 0:
-            return os.WEXITSTATUS(stat2)
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return -1
-
+    for idx, cmd in enumerate(cmds):
+        cmd_lst, input_file, output_file = redirect.handle_redirection(cmd)
+        try:
+            pid = os.fork()
+            if pid == 0:
+                if input_file or output_file:
+                    redirect.redirect_io(input_file, output_file)
+                # if command isn't first...
+                if idx != 0:
+                    os.dup2(pipes[idx-1][0], 0)     # duplicate read end of prev pipe to std input
+                                                    # now this cmd will read from output of prev cmd
+                # if cmd isn't last...
+                if idx != len(cmds) - 1:
+                    os.dup2(pipes[idx][1], 1)       # duplicate write end of current pipe to std ouput
+                                                    # now this cmds output will send to next cmd
+                # close all child process pipes (they were inherited from parent)
+                for r, w in pipes:
+                    os.close(r)
+                    os.close(w)
+                try:
+                    pid = os.execv(cmd_lst[0], cmd_lst)   # execute the command
+                    pid, status = os.waitpid(pid, 0)
+                    if not os.WIFEXITED(status):
+                        print(f"Program terminated: exit code {status}.")
+                        sys.exit(1)
+                except FileNotFoundError:
+                    print(f"Command not found: {cmd[0]}")
+                    sys.exit(1)
+        except Exception as e:
+            print(f"Error executing process: {e}")
+        
+    # close all parent pipes
+    for r, w in pipes:
+        os.close(r)
+        os.close(w)
