@@ -30,15 +30,15 @@ def redirect_io(input_file, output_file):
 
     # input redirection
     if input_file:
-        infile = os.open(input_file, os.O_RDONLY)
-        os.dup2(infile, 0)  # redirect std input from input file
-        os.close(infile)
+        in_fd = os.open(input_file, os.O_RDONLY)
+        os.dup2(in_fd, 0)   # redirect std input from input file
+        os.close(in_fd)
 
     # output redirection
     if output_file:
-        outfile = os.open(output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
-        os.dup2(outfile, 1)  # redirect std output to output file
-        os.close(outfile)
+        out_fd = os.open(output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
+        os.dup2(out_fd, 1)  # redirect std output to output file
+        os.close(out_fd)
     
     
 

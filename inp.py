@@ -16,7 +16,7 @@ def handler(inp):
 
 # create list of args from inp
 def get_args(inp):
-    # Remove comments, but not ones within quotes
+    # remove comments, but not ones within quotes
     pattern = r'(?<!["\'])#(?![^"\']*["\'])'
     inp = re.sub(pattern, '', inp)
     # split by semicolon not within quotes and clean up
