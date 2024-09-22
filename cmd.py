@@ -99,6 +99,9 @@ def run_process(cmd, input_file=None, output_file=None):
             except FileNotFoundError:
                 print(f"Command not found: {cmd[0]}")
                 sys.exit(1)
+        elif cpid < 0:
+            print("Fork failed")
+            sys.exit(1)
         return cpid                     # parent process
     except Exception as e:
         print(f"Error executing process: {e}")

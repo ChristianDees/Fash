@@ -36,7 +36,7 @@ def redirect_io(input_file, output_file):
 
     # output redirection
     if output_file:
-        out_fd = os.open(output_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
+        out_fd = os.open(output_file, os.O_WRONLY | os.O_CREAT)
         os.dup2(out_fd, 1)  # redirect std output to output file
         os.close(out_fd)
     
