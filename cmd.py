@@ -19,7 +19,6 @@ def ps1_update():
         display_dir = '~'
     else:
         display_dir = current_dir.replace(home_dir, '')
-
     ps1 = Fore.GREEN + f"[{user}]" + Fore.BLUE + f"[{display_dir}]" + Style.RESET_ALL + '\n$ '
 
 # set up ps1
