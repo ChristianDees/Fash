@@ -1,4 +1,3 @@
-import re
 import cmd
 import pipe
 
@@ -18,12 +17,22 @@ def handler(inp):
 
 # create list of args from inp
 def get_args(inp):
-    # remove comments, but not ones within quotes
-    pattern = r'(?<!["\'])#(?![^"\']*["\'])'
-    matches = list(re.finditer(pattern, inp))
-    if matches:
-        cmnt_start = matches[0].start()
-        inp = inp[:cmnt_start]
-    # split by semicolon not within quotes and clean up
-    args = [arg.strip() for arg in re.split(r';(?=(?:[^\'"]*\'[^\'"]*\')*[^\'"]*$)', inp) if arg.strip()]
+    args = []
+    in_quotes = False
+    current_arg = []
+    for char in inp:
+        if char in '"\'':
+            in_quotes = not in_quotes # toggle in_quotes state
+        elif char == '#':
+            if not in_quotes:         # ignore everything after hash
+                break
+        elif char == ';':             # command seperator
+            if not in_quotes:
+                args.append(''.join(current_arg).strip())  # add arg
+                current_arg = []                           # reset word list once end
+                continue                                   # continue getting every character within command
+        current_arg.append(char)  # add chars to total arg
+    # add last arg if needed
+    if current_arg:
+        args.append(''.join(current_arg).strip())
     return args
