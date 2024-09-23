@@ -55,30 +55,41 @@ def get_path(cmd):
             f = open(path, "r")     # will read if it exists
             f.close()
             return path
-        except FileNotFoundError:
+        except FileNotFoundError:   # try another path
             continue
         except PermissionError as e:
             print(f"PermissionError: {e}")
             return None
     print(f"fash: {cmd}: command not found")
     return None
-
-
+    
+    
 # return [binary executable path, arguments+]
 def get_cmd_lst(arg):
-    if arg.startswith('./'):  # starts with executable
-        return [arg] + ['']
-    # safe case
+    execCWD = arg.startswith('./')
+    path=None
     cmd_lst = arg.split()
     if not cmd_lst:
         return None
-    # first cmd
+    
     cmd = cmd_lst[0].lower()
-    path = get_path(cmd)
-    # split based on space, but respectful to quotes
-    if path:
-        rest = [p.replace('"','') for p in re.split("( |\\\".*?\\\"|'.*?')", ' '.join(cmd_lst[1:])) if p.strip()]
-        return [path] + rest
+    if not execCWD:
+        path = get_path(cmd)
+    
+    if path or execCWD:
+        # split cmd str respecting quoted sections
+        split_pattern = r'''(?:
+            (?P<quote>["'])(?P<quoted_text>.*?)(?P=quote) |  # match txt within quotes
+            (?P<unquoted_text>[^"'\s]+)  # match unquoted txt
+        )'''
+        matches = re.finditer(split_pattern, ' '.join(cmd_lst[1:]), re.VERBOSE)
+        rest = []
+        for match in matches:
+            if match.group('quoted_text'):
+                rest.append(match.group('quoted_text'))
+            elif match.group('unquoted_text'):
+                rest.append(match.group('unquoted_text'))
+        return [cmd if execCWD else path] + rest
     return None
 
 
@@ -91,8 +102,11 @@ def run_process(cmd, input_file=None, output_file=None):
                 if input_file or output_file:
                     redirect.redirect_io(input_file, output_file)
                 os.execv(cmd[0], cmd)   # replace child process w/ command and its args
-            except FileNotFoundError:
-                print(f"Command not found: {cmd[0]}")
+            except OSError as e:
+                print(f"Program terminated: exit code {e} from {cmd}.")
+                sys.exit(1)
+            except FileNotFoundError as e:
+                print(f"fash: {e}")
                 sys.exit(1)
         elif cpid < 0:
             print("Fork failed")
@@ -113,14 +127,14 @@ def process_cmd(arg):
     elif cmd == 'cd':       # handle directory changes
         cd_handler(cmd_lst)
     else:
-        handler(arg)     # handle regular commands
+        handler(arg)        # handle regular commands
 
 
 # process cmd based on type
 def handler(arg):
     original_stdin = None
     original_stdout = None
-    cmd_lst, input_file, output_file = redirect.handle_redirection(arg)
+    cmd_lst, input_file, output_file = redirect.handler(arg)
     if cmd_lst:
         pType = "bg" if arg.endswith('&') else "fg"
         pid = run_process(cmd_lst, input_file, output_file)

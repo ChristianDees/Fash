@@ -12,7 +12,7 @@ def handler(arg):
         pipes.append((r, w))
         
     for idx, cmd in enumerate(cmds):
-        cmd_lst, input_file, output_file = redirect.handle_redirection(cmd)
+        cmd_lst, input_file, output_file = redirect.handler(cmd)
         try:
             pid = os.fork()
             if pid == 0:
