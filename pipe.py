@@ -31,11 +31,7 @@ def handler(arg):
                     os.close(r)
                     os.close(w)
                 try:
-                    pid = os.execv(cmd_lst[0], cmd_lst)   # execute the command
-                    pid, status = os.waitpid(pid, 0)
-                    if not os.WIFEXITED(status):
-                        print(f"Program terminated: exit code {status}.")
-                        sys.exit(1)
+                    os.execv(cmd_lst[0], cmd_lst)   # execute the command
                 except FileNotFoundError:
                     print(f"Command not found: {cmd[0]}")
                     sys.exit(1)
@@ -46,3 +42,9 @@ def handler(arg):
     for r, w in pipes:
         os.close(r)
         os.close(w)
+        
+    # wait for all child processes to finish
+    for cmd in cmds:
+        pid, status = os.wait()
+        if not os.WIFEXITED(status):
+            print(f"Program terminated with exit code {os.WEXITSTATUS(status)}.")

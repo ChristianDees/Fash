@@ -15,6 +15,7 @@ def handler(inp):
         else:            # process non-piped commands
             cmd.process_cmd(arg)
 
+
 # create list of args from inp
 def get_args(inp):
     # remove comments, but not ones within quotes

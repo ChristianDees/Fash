@@ -15,14 +15,15 @@ def main():
                     break
         except FileNotFoundError:
             print(f"File {file} not found.")
-    try:
-        while (1):
-            inp.handler(input(cmd.ps1)) # prompt user until exited
-            if cmd.quit_cmd:
-                break
-    except KeyboardInterrupt:
-        print("\nExited on KeyboardInterrupt")
-        return 1
+    else:
+        try:
+            while (1):
+                inp.handler(input(cmd.ps1)) # prompt user until exited
+                if cmd.quit_cmd:
+                    break
+        except KeyboardInterrupt:
+            print("\nExited on KeyboardInterrupt")
+            return 1
         
         
 if __name__ == "__main__":
