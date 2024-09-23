@@ -68,15 +68,13 @@ def get_path(cmd):
 def get_cmd_lst(arg):
     if arg.startswith('./'):  # starts with executable
         return [arg] + ['']
-    
+    # safe case
     cmd_lst = arg.split()
     if not cmd_lst:
         return None
-    
     # first cmd
     cmd = cmd_lst[0].lower()
     path = get_path(cmd)
-    
     # split based on space, but respectful to quotes
     if path:
         rest = [p.replace('"','') for p in re.split("( |\\\".*?\\\"|'.*?')", ' '.join(cmd_lst[1:])) if p.strip()]
