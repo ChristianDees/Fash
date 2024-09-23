@@ -103,7 +103,7 @@ def run_process(cmd, input_file=None, output_file=None):
                     redirect.redirect_io(input_file, output_file)
                 os.execv(cmd[0], cmd)   # replace child process w/ command and its args
             except OSError as e:
-                print(f"Program terminated: exit code {e} from {cmd}.")
+                print(f"fash: {cmd[0]}: {e}.")
                 sys.exit(1)
             except FileNotFoundError as e:
                 print(f"fash: {e}")
