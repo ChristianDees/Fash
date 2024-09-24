@@ -11,8 +11,9 @@ pip install -r requirements.txt
 ```
 Once the installation is complete, simply execute the application with:
 ```bash
-python3 main.py
+./main.py
 ```
+
 Now you can start entering commands. Use `quit` to exit at any time.
 
 ## Key Features
