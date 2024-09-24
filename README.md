@@ -1,7 +1,20 @@
 # Fash
 
+![Static Badge](https://img.shields.io/badge/Language-Python-blue)
+![GitHub all releases](https://img.shields.io/github/downloads/christiandees/Fash/total)
+![GitHub repo size](https://img.shields.io/github/repo-size/christiandees/Fash)
+
+
 ## Overview
 Fash is the **CNU Project's Fake Again SHell**, a lightweight and user-friendly implementation of a POSIX shell inspired by the GNU Project's Bash (Bourne Again SHell). Fash is designed to handle common shell functionalities while providing an intuitive experience for users.
+
+
+## Table of Contents
+1. [Getting Started](#getting-started)
+2. [Features](#features)
+3. [Libraries](#libraries)
+4. [Colaboration](#collaboration)
+
 
 ## Getting Started
 To get started with Fash, make sure to have the required modules installed. You can do this by running the following command:
@@ -16,7 +29,7 @@ Once the installation is complete, simply execute the application with:
 
 Now you can start entering commands. Use `quit` to exit at any time.
 
-## Key Features
+## Features
 - **User Input Handling**: Efficiently processes user commands and provides feedback.
 - **Standard Unix Command Syntax**: Supports familiar command-line syntax for ease of use.
 - **Error Management**: Gracefully handles user errors with informative messages.
@@ -27,7 +40,7 @@ Now you can start entering commands. Use `quit` to exit at any time.
 - **Background Tasks**: Run processes in the background using the ampersand (`&`).
 - **Colored Prompt**: A visually appealing colored prompt enhances the user experience.
 
-## Libraries Used
+## Libraries
 Fash is built using only the following libraries:
 - **os**: Operating system functionality.
 - **sys**: System-specific parameters and functions.
