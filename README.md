@@ -4,8 +4,6 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/christiandees/Fash/total)
 ![GitHub repo size](https://img.shields.io/github/repo-size/christiandees/Fash)
 
-
-## Overview
 Fash is the **CNU Project's Fake Again SHell**, a lightweight and user-friendly implementation of a POSIX shell inspired by the GNU Project's Bash (Bourne Again SHell). Fash is designed to handle common shell functionalities while providing an intuitive experience for users.
 
 
