@@ -80,7 +80,7 @@ def get_cmd_lst(arg):
         # split cmd str respecting quoted sections
         split_pattern = r'''(?:
             (?P<quote>["'])(?P<quoted_text>.*?)(?P=quote) |  # match txt within quotes
-            (?P<unquoted_text>[^"'\s]+)  # match unquoted txt
+            (?P<unquoted_text>[^"'\s]+)                      # match unquoted txt
         )'''
         matches = re.finditer(split_pattern, ' '.join(cmd_lst[1:]), re.VERBOSE)
         rest = []
@@ -134,14 +134,17 @@ def process_cmd(arg):
 def handler(arg):
     original_stdin = None
     original_stdout = None
+    pType = 'bg' if arg.endswith('&') else 'fg'
+    if pType == 'bg':
+        arg = arg[:-1]
     cmd_lst, input_file, output_file = redirect.handler(arg)
     if cmd_lst:
-        pType = "bg" if arg.endswith('&') else "fg"
         pid = run_process(cmd_lst, input_file, output_file)
         if pid:
             if pType == "fg":
                 process_wait(pid)
             elif pType == "bg":
+                print(f"{pid}")
                 pass
 
 
